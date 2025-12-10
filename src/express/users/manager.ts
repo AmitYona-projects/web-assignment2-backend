@@ -1,9 +1,10 @@
 import bcrypt from "bcrypt";
-import { DocumentNotFoundError } from "../../utils/errors";
+import { DocumentNotFoundError, ServerError } from "../../utils/errors";
 import { logger } from "../../utils/logger";
 import { IMongoUser, IUser } from "./interface";
 import { UserModel } from "./model";
 import config from "../../config";
+import { StatusCodes } from "http-status-codes";
 
 export class UserManager {
     static getAllUsers = async (): Promise<IMongoUser[]> => {
@@ -14,10 +15,20 @@ export class UserManager {
         return UserModel.findById(id).orFail(new DocumentNotFoundError(id)).lean().exec();
     };
 
-    static createUser = async (user: IUser): Promise<IMongoUser | null> => {
+    static generateEncryptedPassword = async (password: string): Promise<string> => {
         try {
             const salt = await bcrypt.genSalt(config.auth.saltRounds);
-            const encryptedPassword = await bcrypt.hash(user.password, salt);
+            const encryptedPassword = await bcrypt.hash(password, salt);
+
+            return encryptedPassword;
+        } catch (error) {
+            throw new ServerError(StatusCodes.INTERNAL_SERVER_ERROR, "Error when trying to encrypt password", error);
+        }
+    };
+
+    static createUser = async (user: IUser): Promise<IMongoUser | null> => {
+        try {
+            const encryptedPassword = await this.generateEncryptedPassword(user.password);
 
             return UserModel.create({
                 ...user,
@@ -34,9 +45,7 @@ export class UserManager {
             const userToUpdate = updateData;
 
             if (updateData.password) {
-                const salt = await bcrypt.genSalt(config.auth.saltRounds);
-                const encryptedPassword = await bcrypt.hash(updateData.password, salt);
-
+                const encryptedPassword = await this.generateEncryptedPassword(updateData.password);
                 userToUpdate.password = encryptedPassword;
             }
 

@@ -9,7 +9,7 @@ export const getUserByIdSchema = emptyRequestSchema.keys({
 
 export const createUserSchema = emptyRequestSchema.keys({
     body: {
-        email: Joi.string().required(),
+        email: Joi.string().email().required(),
         username: Joi.string().required(),
         password: Joi.string().required(),
     },
@@ -17,9 +17,8 @@ export const createUserSchema = emptyRequestSchema.keys({
 
 export const updateUserSchema = emptyRequestSchema.keys({
     body: {
-        email: Joi.string().required(),
-        username: Joi.string().required(),
-        password: Joi.string().required(),
+        username: Joi.string().optional(),
+        password: Joi.string().optional(),
     },
     params: {
         id: MongoIdSchema.required(),
