@@ -30,6 +30,10 @@ export class Server {
         return app;
     }
 
+    get expressApp() {
+        return this.app;
+    }
+
     async start() {
         this.http = this.app.listen(this.port);
         await once(this.http, "listening");

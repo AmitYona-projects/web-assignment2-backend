@@ -5,7 +5,7 @@ import { logger } from "./utils/logger/index";
 
 const { mongo } = config;
 
-const initializeMongo = async () => {
+export const initializeMongo = async () => {
     logger.info("Connecting to Mongo...");
 
     await mongoose.connect(mongo.url);
