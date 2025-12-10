@@ -1,0 +1,35 @@
+### Create Post
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+  "senderId": "6548b9f1a2c3d4e567890123",
+  "title": "My first post title",
+  "description": "My first post description"
+}
+
+###
+# Get All Posts
+GET http://localhost:3000/posts
+
+###
+# Get Post By ID
+GET http://localhost:3000/posts/69385e04118742570f1d394e
+
+###
+# Get Posts By SenderId
+GET http://localhost:3000/posts/sender?senderId=6548b9f1a2c3d4e567890123
+
+###
+# Update Post
+PUT http://localhost:3000/posts/69385e04118742570f1d394e
+Content-Type: application/json
+
+{
+  "title": "Updated title",
+  "description": "Updated description"
+}
+
+###
+# Delete Post
+DELETE http://localhost:3000/posts/69385e04118742570f1d394e
