@@ -1,5 +1,5 @@
-import Joi from 'joi';
-import { emptyRequestSchema, MongoIdSchema } from '../../utils/express/joi';
+import Joi from "joi";
+import { emptyRequestSchema, MongoIdSchema } from "../../utils/express/joi";
 
 export const getPostByIdSchema = emptyRequestSchema.keys({
     params: {
@@ -9,28 +9,28 @@ export const getPostByIdSchema = emptyRequestSchema.keys({
 
 export const getPostsBySenderIdSchema = emptyRequestSchema.keys({
     query: {
-        senderId: MongoIdSchema.required()
-    }
+        senderId: MongoIdSchema.required(),
+    },
 });
 
 export const createPostSchema = emptyRequestSchema.keys({
     body: {
         senderId: MongoIdSchema.required(),
         title: Joi.string().required(),
-        description: Joi.string().required()
-    }
+        description: Joi.string().required(),
+    },
 });
 
 export const updatePostSchema = emptyRequestSchema.keys({
     body: {
         senderId: MongoIdSchema.optional(),
         title: Joi.string().optional(),
-        description: Joi.string().optional()
+        description: Joi.string().optional(),
     },
     params: {
-        id: MongoIdSchema.required()
-    }
-})
+        id: MongoIdSchema.required(),
+    },
+});
 
 export const deletePostByIdSchema = emptyRequestSchema.keys({
     params: {

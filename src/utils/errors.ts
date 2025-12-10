@@ -2,28 +2,28 @@
 import { StatusCodes } from "http-status-codes";
 
 export class BaseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = this.constructor.name;
-  }
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+    }
 }
 
 export class RequestError extends BaseError {
-  public code: number;
+    public code: number;
 
-  constructor(code: number, message: string) {
-    super(message);
-    this.code = code;
-  }
+    constructor(code: number, message: string) {
+        super(message);
+        this.code = code;
+    }
 }
 
 export class ServiceError extends Error {
-  public code;
+    public code;
 
-  constructor(code: number, message: string) {
-    super(message);
-    this.code = code;
-  }
+    constructor(code: number, message: string) {
+        super(message);
+        this.code = code;
+    }
 }
 
 export class DocumentNotFoundError extends ServiceError {
@@ -33,16 +33,16 @@ export class DocumentNotFoundError extends ServiceError {
 }
 
 export class ServerError extends Error {
-  constructor(
-    public code: number,
-    public message: string,
-    public originalError?: any,
-    public meta?: any,
-  ) {
-    super();
-  }
+    constructor(
+        public code: number,
+        public message: string,
+        public originalError?: any,
+        public meta?: any
+    ) {
+        super();
+    }
 
-  public get responseJson() {
-    return { ...this, originalError: undefined };
-  }
+    public get responseJson() {
+        return { ...this, originalError: undefined };
+    }
 }

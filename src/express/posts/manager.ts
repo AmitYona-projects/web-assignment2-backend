@@ -20,7 +20,10 @@ export class PostManager {
     };
 
     static updatePostById = async (id: string, update: Partial<IPost>): Promise<IMongoPost> => {
-        return PostModel.findByIdAndUpdate(id, update, { new: true }).orFail(new DocumentNotFoundError(id)).lean().exec();
+        return PostModel.findByIdAndUpdate(id, update, { new: true })
+            .orFail(new DocumentNotFoundError(id))
+            .lean()
+            .exec();
     };
 
     static deletePostById = async (id: string): Promise<string> => {
@@ -28,5 +31,4 @@ export class PostManager {
 
         return `Post ${id} deleted succesfully`;
     };
-
 }

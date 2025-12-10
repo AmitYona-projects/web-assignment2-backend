@@ -1,9 +1,14 @@
 import { Router } from "express";
 import ValidateRequest from "../../utils/express/joi";
-import { createPostSchema, deletePostByIdSchema, getPostByIdSchema, getPostsBySenderIdSchema, updatePostSchema } from "./validator";
+import {
+    createPostSchema,
+    deletePostByIdSchema,
+    getPostByIdSchema,
+    getPostsBySenderIdSchema,
+    updatePostSchema,
+} from "./validator";
 import { PostController } from "./controller";
 import { wrapController } from "../../utils/express/middlewares";
-
 
 const postRouter = Router();
 

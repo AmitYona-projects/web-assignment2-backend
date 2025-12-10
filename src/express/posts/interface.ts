@@ -1,5 +1,4 @@
-import {Document, Types } from "mongoose";
-
+import { Document, Types } from "mongoose";
 
 export interface IPost {
     senderId: Types.ObjectId;

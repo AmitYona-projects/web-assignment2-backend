@@ -6,21 +6,21 @@ import { logger } from "./utils/logger/index";
 const { mongo } = config;
 
 const initializeMongo = async () => {
-  logger.info("Connecting to Mongo...");
+    logger.info("Connecting to Mongo...");
 
-  await mongoose.connect(mongo.url);
+    await mongoose.connect(mongo.url);
 
-  logger.info("Mongo connection established");
+    logger.info("Mongo connection established");
 };
 
 const main = async () => {
-  await initializeMongo();
+    await initializeMongo();
 
-  const server = new Server(config.server.port);
+    const server = new Server(config.server.port);
 
-  await server.start();
+    await server.start();
 
-  logger.info(`Server started on port: ${config.server.port}`);
+    logger.info(`Server started on port: ${config.server.port}`);
 };
 
 main().catch(logger.error);

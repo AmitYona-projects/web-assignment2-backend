@@ -3,55 +3,38 @@ import { ServerError } from "../errors";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../logger";
 
-export const wrapMiddleware = (
-  func: (req: Request, res: Response) => Promise<void>
-) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    func(req, res)
-      .then(() => next())
-      .catch(next);
-  };
+export const wrapMiddleware = (func: (req: Request, res: Response) => Promise<void>) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        func(req, res)
+            .then(() => next())
+            .catch(next);
+    };
 };
 
 export const wrapValidator = wrapMiddleware;
 
-export const wrapController = (
-  func: (req: Request, res: Response, next?: NextFunction) => Promise<void>
-) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    func(req, res, next).catch(next);
-  };
+export const wrapController = (func: (req: Request, res: Response, next?: NextFunction) => Promise<void>) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        func(req, res, next).catch(next);
+    };
 };
 
-export const errorMiddleware = (
-  error: Error,
-  _req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  let serverError: ServerError;
+export const errorMiddleware = (error: Error, _req: Request, res: Response, next: NextFunction) => {
+    let serverError: ServerError;
 
-  if (error instanceof ServerError) {
-    serverError = error;
-  } else if (["ValidationError", "SyntaxError"].includes(error.name)) {
-    serverError = new ServerError(
-      StatusCodes.BAD_REQUEST,
-      error.message,
-      error
-    );
-  } else {
-    serverError = new ServerError(
-      StatusCodes.INTERNAL_SERVER_ERROR,
-      error.message,
-      error
-    );
-  }
+    if (error instanceof ServerError) {
+        serverError = error;
+    } else if (["ValidationError", "SyntaxError"].includes(error.name)) {
+        serverError = new ServerError(StatusCodes.BAD_REQUEST, error.message, error);
+    } else {
+        serverError = new ServerError(StatusCodes.INTERNAL_SERVER_ERROR, error.message, error);
+    }
 
-  res.status(serverError.code).json(serverError.responseJson);
+    res.status(serverError.code).json(serverError.responseJson);
 
-  res.locals.error = serverError;
+    res.locals.error = serverError;
 
-  logger.error(`Request failed with error: ${serverError.message}`);
+    logger.error(`Request failed with error: ${serverError.message}`);
 
-  next();
+    next();
 };
