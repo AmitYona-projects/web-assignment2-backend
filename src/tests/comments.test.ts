@@ -10,11 +10,12 @@ import config from "../config";
 import { logger } from "../utils/logger";
 
 let app: Application;
+let server: Server;
 
 beforeAll(async () => {
     logger.info("beforeAll");
     await initializeMongo();
-    const server = new Server(config.server.port);
+    server = new Server(config.server.port);
     await server.start();
     app = server.expressApp;
 
@@ -25,6 +26,7 @@ beforeAll(async () => {
 afterAll((done) => {
     logger.info("afterAll");
     mongoose.connection.close();
+    server.stop();
     done();
 });
 
