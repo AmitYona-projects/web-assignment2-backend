@@ -4,7 +4,7 @@ import { Application } from "express";
 import { UserModel } from "../express/users/model";
 import { PostModel } from "../express/posts/model";
 import postsTests from "./posts_tests.json";
-import { initializeMongo, main } from "..";
+import { initializeMongo } from "..";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
@@ -46,7 +46,6 @@ describe("posts tests", () => {
         expect(response.body.senderId).toBe(postsTests[0].senderId);
         expect(response.body.description).toBe(postsTests[0].description);
         newPostId = response.body._id;
-        logger.info(`newPostId: ${newPostId}`);
     });
 
     test("get post by id", async () => {
