@@ -4,7 +4,7 @@ import { Application } from "express";
 import { CommentModel } from "../express/comments/model";
 import { UserModel } from "../express/users/model";
 import commentsTests from "./comments_tests.json";
-import { initializeMongo } from "..";
+import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
@@ -30,7 +30,7 @@ afterAll((done) => {
     done();
 });
 
-const baseUrl = "/comments";
+const baseUrl = config.test.comments.route;
 
 let newCommentId = "";
 
@@ -51,7 +51,7 @@ describe("comments tests", () => {
     });
 
     test("get comment by id", async () => {
-        const response = await request(app).get(baseUrl + "/" + newCommentId);
+        const response = await request(app).get(`${baseUrl}/${newCommentId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.senderId).toBe(commentsTests[0].senderId);
         expect(response.body.postId).toBe(commentsTests[0].postId);
@@ -59,7 +59,7 @@ describe("comments tests", () => {
     });
 
     test("get comment by userId", async () => {
-        const response = await request(app).get(baseUrl + "?senderId=" + commentsTests[0].senderId);
+        const response = await request(app).get(`${baseUrl}?senderId=${commentsTests[0].senderId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0].postId).toBe(commentsTests[0].postId);
@@ -67,9 +67,9 @@ describe("comments tests", () => {
     });
 
     test("delete comment", async () => {
-        const response = await request(app).delete(baseUrl + "/" + newCommentId);
+        const response = await request(app).delete(`${baseUrl}/${newCommentId}`);
         expect(response.statusCode).toBe(200);
-        const response2 = await request(app).get(baseUrl + "/" + newCommentId);
+        const response2 = await request(app).get(`${baseUrl}/${newCommentId}`);
         expect(response2.statusCode).toBe(404);
     });
 });

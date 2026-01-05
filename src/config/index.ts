@@ -14,6 +14,17 @@ const config = {
     auth: {
         saltRounds: env.get("GEN_SALT_ROUNDS").default(10).asIntPositive(),
     },
+    test: {
+        comments: {
+            route: "/comments",
+        },
+        posts: {
+            route: "/posts",
+        },
+        users: {
+            route: "/users",
+        },
+    },
 };
 
 export default config;

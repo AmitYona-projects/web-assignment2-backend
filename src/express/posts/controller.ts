@@ -16,6 +16,7 @@ export class PostController {
 
     static createPost = async (req: Request, res: Response) => {
         const post = await PostManager.createPost(req.body);
+
         res.status(201).json(post);
     };
 

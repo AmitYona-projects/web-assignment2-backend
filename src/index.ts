@@ -1,17 +1,7 @@
-import mongoose from "mongoose";
 import config from "./config/index";
 import { Server } from "./express/server";
 import { logger } from "./utils/logger/index";
-
-const { mongo } = config;
-
-export const initializeMongo = async () => {
-    logger.info("Connecting to Mongo...");
-
-    await mongoose.connect(mongo.url);
-
-    logger.info("Mongo connection established");
-};
+import { initializeMongo } from "./utils/mongo";
 
 const main = async () => {
     await initializeMongo();

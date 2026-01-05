@@ -4,7 +4,7 @@ import { Application } from "express";
 import { UserModel } from "../express/users/model";
 import { PostModel } from "../express/posts/model";
 import postsTests from "./posts_tests.json";
-import { initializeMongo } from "..";
+import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
@@ -30,7 +30,7 @@ afterAll((done) => {
     done();
 });
 
-const baseUrl = "/posts";
+const baseUrl = config.test.posts.route;
 
 let newPostId = "";
 
@@ -51,7 +51,7 @@ describe("posts tests", () => {
     });
 
     test("get post by id", async () => {
-        const response = await request(app).get(baseUrl + "/" + newPostId);
+        const response = await request(app).get(`${baseUrl}/${newPostId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe(postsTests[0].title);
         expect(response.body.senderId).toBe(postsTests[0].senderId);
@@ -59,7 +59,7 @@ describe("posts tests", () => {
     });
 
     test("get post by userId", async () => {
-        const response = await request(app).get(baseUrl + "?senderId=" + postsTests[0].senderId);
+        const response = await request(app).get(`${baseUrl}?senderId=${postsTests[0].senderId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0].title).toBe(postsTests[0].title);
@@ -67,9 +67,9 @@ describe("posts tests", () => {
     });
 
     test("delete post", async () => {
-        const response = await request(app).delete(baseUrl + "/" + newPostId);
+        const response = await request(app).delete(`${baseUrl}/${newPostId}`);
         expect(response.statusCode).toBe(200);
-        const response2 = await request(app).get(baseUrl + "/" + newPostId);
+        const response2 = await request(app).get(`${baseUrl}/${newPostId}`);
         expect(response2.statusCode).toBe(404);
     });
 });
