@@ -5,6 +5,7 @@ import http from "http";
 import { errorMiddleware } from "../utils/express/middlewares";
 import { loggerMiddleware } from "../utils/logger/middleware";
 import appRouter from "./router";
+import { initializeSwagger } from "../utils/swagger";
 
 export class Server {
     private app: express.Application;
@@ -24,6 +25,8 @@ export class Server {
 
         app.use(loggerMiddleware);
         app.use(appRouter);
+
+        initializeSwagger(app);
 
         app.use(errorMiddleware);
 

@@ -29,8 +29,6 @@
         "joi": "^18.0.2",
         "jsonwebtoken": "^9.0.3",
         "mongoose": "^9.0.1",
-        "swagger-jsdoc": "^6.2.8",
-        "swagger-ui-express": "^5.0.1",
         "winston": "^3.19.0"
     },
     "devDependencies": {
@@ -52,6 +50,8 @@
         "nodemon": "^3.1.11",
         "prettier": "^3.7.4",
         "supertest": "^7.1.4",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
