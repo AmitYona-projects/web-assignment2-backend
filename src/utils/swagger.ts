@@ -16,7 +16,7 @@ export const initializeSwagger = (app: Express) => {
             },
             servers: [{ url: `http://localhost:${server.port}` }],
         },
-        apis: ["./src/express/**/*.router.ts"],
+        apis: ["./src/express/**/*.ts"],
     };
 
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
