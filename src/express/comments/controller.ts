@@ -15,7 +15,9 @@ export class CommentController {
     };
 
     static createComment = async (req: Request, res: Response) => {
-        res.json(await CommentManager.createComment(req.body));
+        const comment = await CommentManager.createComment(req.body);
+
+        res.status(201).json(comment);
     };
 
     static updateCommentById = async (req: Request, res: Response) => {

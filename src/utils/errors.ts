@@ -26,12 +26,6 @@ export class ServiceError extends Error {
     }
 }
 
-export class DocumentNotFoundError extends ServiceError {
-    constructor(id: string) {
-        super(StatusCodes.NOT_FOUND, `No Document found with id ${id}`);
-    }
-}
-
 export class ServerError extends Error {
     constructor(
         public code: number,
@@ -44,5 +38,10 @@ export class ServerError extends Error {
 
     public get responseJson() {
         return { ...this, originalError: undefined };
+    }
+}
+export class DocumentNotFoundError extends ServerError {
+    constructor(id: string) {
+        super(StatusCodes.NOT_FOUND, `No Document found with id ${id}`);
     }
 }

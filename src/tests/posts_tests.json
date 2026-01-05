@@ -1,0 +1,17 @@
+[
+    {
+        "senderId": "69385e04118742570f1d394e",
+        "title": "post1",
+        "description": "Post 1 description"
+    },
+    {
+        "senderId": "69385e04118742570f1d394e",
+        "title": "post2",
+        "description": "Post 2 description"
+    },
+    {
+        "senderId": "69385e04118742570f1d394e",
+        "title": "post3",
+        "description": "Post 3 description"
+    }
+]
