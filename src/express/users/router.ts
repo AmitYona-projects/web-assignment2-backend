@@ -72,6 +72,38 @@ const userRouter = Router();
  *           type: string
  *           description: Password of the user
  *           example: "yonyon123!"
+ *
+ *     InternalServerError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Internal server error"
+ *
+ *     BadRequestError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid request body"
+ *
+ *     InvalidIdError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid user ID"
+ *
+ *     NotFoundError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "User not found"
  */
 
 /**
@@ -94,12 +126,7 @@ const userRouter = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 userRouter.get("/", wrapController(UserController.getAllUsers));
 
@@ -127,34 +154,19 @@ userRouter.get("/", wrapController(UserController.getAllUsers));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  *       '400':
  *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid user ID"
+ *               $ref: '#/components/schemas/InvalidIdError'
  *       '404':
  *         description: User not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "User not found"
+ *               $ref: '#/components/schemas/NotFoundError'
  */
 userRouter.get("/:id", ValidateRequest(getUserByIdSchema), wrapController(UserController.getUserById));
 
@@ -182,23 +194,14 @@ userRouter.get("/:id", ValidateRequest(getUserByIdSchema), wrapController(UserCo
  *         content:
  *           application/json:
  *             schema:
- *               type: object
+ *               $ref: '#/components/schemas/InternalServerError'
  *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
  *       '400':
  *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  */
 userRouter.post("/", ValidateRequest(createUserSchema), wrapController(UserController.createUser));
 
@@ -232,34 +235,19 @@ userRouter.post("/", ValidateRequest(createUserSchema), wrapController(UserContr
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  *       '400':
  *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '404':
  *         description: User not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "User not found"
+ *               $ref: '#/components/schemas/NotFoundError'
  */
 userRouter.put("/:id", ValidateRequest(updateUserSchema), wrapController(UserController.updateUser));
 
@@ -293,22 +281,13 @@ userRouter.put("/:id", ValidateRequest(updateUserSchema), wrapController(UserCon
  *           application/json:
  *             schema:
  *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "User not found"
+ *               $ref: '#/components/schemas/InternalServerError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/BadRequestError'
  */
 userRouter.delete("/:id", ValidateRequest(deleteUserByIdSchema), wrapController(UserController.deleteUserById));
 

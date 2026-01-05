@@ -82,6 +82,37 @@ const commentRouter = Router();
  *           type: string
  *           description: ID of the sender
  *           example: "67a1d205c689f9a4e5476a1c"
+ *     InternalServerError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Internal server error"
+ *
+ *     BadRequestError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid request body"
+ *
+ *     InvalidIdError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid comment ID"
+ *
+ *     NotFoundError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Comment not found"
  */
 
 /**
@@ -104,12 +135,7 @@ const commentRouter = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 commentRouter.get("/", wrapController(CommentController.getAllComments));
 
@@ -142,23 +168,13 @@ commentRouter.get("/", wrapController(CommentController.getAllComments));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid comment ID"
+ *               $ref: '#/components/schemas/InvalidIdError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 commentRouter.get("/:id", ValidateRequest(getCommentByIdSchema), wrapController(CommentController.getCommentById));
 
@@ -199,12 +215,7 @@ commentRouter.get("/:id", ValidateRequest(getCommentByIdSchema), wrapController(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/BadRequestError'
  */
 commentRouter.get(
     "/post/:postId",
@@ -236,23 +247,13 @@ commentRouter.get(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 commentRouter.post("/", ValidateRequest(createCommentSchema), wrapController(CommentController.createComment));
 
@@ -286,23 +287,13 @@ commentRouter.post("/", ValidateRequest(createCommentSchema), wrapController(Com
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 commentRouter.put("/:id", ValidateRequest(updateCommentSchema), wrapController(CommentController.updateCommentById));
 
@@ -335,23 +326,13 @@ commentRouter.put("/:id", ValidateRequest(updateCommentSchema), wrapController(C
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid comment ID"
+ *               $ref: '#/components/schemas/InvalidIdError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 commentRouter.delete(
     "/:id",

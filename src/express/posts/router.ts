@@ -82,6 +82,38 @@ const postRouter = Router();
  *           type: string
  *           description: User ID of the sender
  *           example: "67a1d205c689f9a4e5476a1b"
+ *
+ *     InternalServerError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Internal server error"
+ *
+ *     BadRequestError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid request body"
+ *
+ *     InvalidIdError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Invalid post ID"
+ *
+ *     NotFoundError:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Error message
+ *           example: "Post not found"
  */
 
 /**
@@ -104,12 +136,7 @@ const postRouter = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.get("/", wrapController(PostController.getAllPosts));
 
@@ -150,23 +177,13 @@ postRouter.get("/", wrapController(PostController.getAllPosts));
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Post not found"
+ *               $ref: '#/components/schemas/NotFoundError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.get("/sender", ValidateRequest(getPostsBySenderIdSchema), wrapController(PostController.getPostsBySenderId));
 
@@ -188,34 +205,20 @@ postRouter.get("/sender", ValidateRequest(getPostsBySenderIdSchema), wrapControl
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Post'
  *       '404':
  *         description: Post not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
+ *               $ref: '#/components/schemas/NotFoundError'
  *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Post not found"
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.get("/:id", ValidateRequest(getPostByIdSchema), wrapController(PostController.getPostById));
 
@@ -243,23 +246,13 @@ postRouter.get("/:id", ValidateRequest(getPostByIdSchema), wrapController(PostCo
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.post("/", ValidateRequest(createPostSchema), wrapController(PostController.createPost));
 
@@ -293,34 +286,19 @@ postRouter.post("/", ValidateRequest(createPostSchema), wrapController(PostContr
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Invalid request body"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '404':
  *         description: Post not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Post not found"
+ *               $ref: '#/components/schemas/NotFoundError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.put("/:id", ValidateRequest(updatePostSchema), wrapController(PostController.updatePost));
 
@@ -342,34 +320,19 @@ postRouter.put("/:id", ValidateRequest(updatePostSchema), wrapController(PostCon
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Post <id> deleted successfully"
+ *               $ref: '#/components/schemas/BadRequestError'
  *       '404':
  *         description: Post not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Post not found"
+ *               $ref: '#/components/schemas/NotFoundError'
  *       '500':
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/InternalServerError'
  */
 postRouter.delete("/:id", ValidateRequest(deletePostByIdSchema), wrapController(PostController.deletePostById));
 
