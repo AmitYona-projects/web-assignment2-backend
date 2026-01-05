@@ -4,6 +4,7 @@ import "./dotenv";
 const config = {
     server: {
         port: env.get("SERVER_PORT").default(3000).asPortNumber(),
+        swaggerUrl: env.get("SWAGGER_URL").default("/api-docs").asString(),
     },
     mongo: {
         url: env.get("MONGO_URL").default("mongodb://localhost:27017/").asUrlString(),
