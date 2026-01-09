@@ -13,7 +13,7 @@ export class UserController {
     };
 
     static createUser = async (req: Request, res: Response) => {
-        res.json(await UserManager.createUser(req.body));
+        res.status(201).json(await UserManager.createUser(req.body));
     };
 
     static updateUser = async (req: AuthRequest, res: Response) => {

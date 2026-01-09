@@ -10,13 +10,13 @@ const { jwtSecret, jwtRefreshSecret, accessTokenExpiration, refreshTokenExpirati
     config.auth;
 
 export const generateAccessToken = (userId: string): string => {
-    return jwt.sign({ id: userId }, jwtSecret, {
+    return jwt.sign({ _id: userId }, jwtSecret, {
         expiresIn: accessTokenExpiration,
     } as SignOptions);
 };
 
 export const generateRefreshToken = (userId: string): string => {
-    return jwt.sign({ id: userId }, jwtRefreshSecret, {
+    return jwt.sign({ _id: userId }, jwtRefreshSecret, {
         expiresIn: refreshTokenExpiration,
     } as SignOptions);
 };

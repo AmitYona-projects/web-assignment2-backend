@@ -7,9 +7,12 @@ import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
+import { IAuthResponse } from "../express/auth/interface";
+import { getMockLoginUser } from "./utils";
 
 let app: Application;
 let server: Server;
+let loginedUserData: IAuthResponse;
 
 beforeAll(async () => {
     logger.info("beforeAll");
@@ -19,6 +22,7 @@ beforeAll(async () => {
     app = server.expressApp;
 
     await UserModel.deleteMany();
+    loginedUserData = await getMockLoginUser(app);
 });
 
 afterAll((done) => {
@@ -49,7 +53,7 @@ describe("User API Integration Tests", () => {
         const response = await request(app).get(baseUrl);
 
         expect(response.statusCode).toBe(200);
-        expect(response.body.length).toBeGreaterThanOrEqual(1);
+        expect(response.body.length).toBeGreaterThanOrEqual(2); // Now we have the mock user + test user
     });
 
     test("retrieves a user by their ID", async () => {
@@ -61,19 +65,55 @@ describe("User API Integration Tests", () => {
         expect(response.body.username).toBe(testUsers[0].username);
     });
 
-    test("updates a user's password using their ID", async () => {
+    test("fails to update a user without authentication", async () => {
         const response = await request(app)
             .put(`${baseUrl}/${userId}`)
             .send({ password: "updatedpassword", username: "updatedusername" });
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(401);
     });
 
-    test("deletes a user by their ID", async () => {
+    test("fails to update a user with id that is not the user's own", async () => {
+        const response = await request(app)
+            .put(`${baseUrl}/${userId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`)
+            .send({ password: "updatedpassword", username: "updatedusername" });
+
+        expect(response.statusCode).toBe(403);
+    });
+
+    test("updates a user's password and username with authentication", async () => {
+        const response = await request(app)
+            .put(`${baseUrl}/${loginedUserData.user._id}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`)
+            .send({ password: "updatedpassword", username: "updatedusername" });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.username).toBe("updatedusername");
+    });
+
+    test("fails to delete a user without authentication", async () => {
         const response = await request(app).delete(`${baseUrl}/${userId}`);
+
+        expect(response.statusCode).toBe(401);
+    });
+
+    test("fails to delete a user with id that is not the user's own", async () => {
+        const response = await request(app)
+            .delete(`${baseUrl}/${userId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
+
+        expect(response.statusCode).toBe(403);
+    });
+
+    test("deletes a user by their ID with authentication", async () => {
+        const response = await request(app)
+            .delete(`${baseUrl}/${loginedUserData.user._id}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
+
         expect(response.statusCode).toBe(200);
 
-        const response2 = await request(app).get(`${baseUrl}/${userId}`);
+        const response2 = await request(app).get(`${baseUrl}/${loginedUserData.user._id}`);
         expect(response2.statusCode).toBe(404);
     });
 });

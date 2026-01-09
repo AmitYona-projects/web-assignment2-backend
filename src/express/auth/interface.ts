@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { IMongoUser } from "../users/interface";
 
 export interface ILoginData {
     email: string;
@@ -22,11 +23,7 @@ export interface IRefreshTokenData {
 export interface IAuthResponse {
     accessToken: string;
     refreshToken: string;
-    user?: {
-        _id: string;
-        email: string;
-        username: string;
-    };
+    user: IMongoUser;
 }
 
 export interface ITokenInfo {

@@ -24,7 +24,7 @@ export class AuthManager {
         newUser.refreshTokens.push(refreshToken);
         await newUser.save();
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, user: newUser };
     };
 
     static login = async (loginData: ILoginData): Promise<IAuthResponse> => {
@@ -41,7 +41,7 @@ export class AuthManager {
         user.refreshTokens.push(refreshToken);
         await user.save();
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, user };
     };
 
     static logout = async (refreshToken: string, userFromToken?: ITokenInfo): Promise<{ message: string }> => {
@@ -88,7 +88,7 @@ export class AuthManager {
             user.refreshTokens.push(newRefreshToken);
             await user.save();
 
-            return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+            return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
         } catch (error) {
             if (error instanceof ServerError) throw error;
             else throw new ServerError(StatusCodes.INTERNAL_SERVER_ERROR, "Error on refreshing token", error);

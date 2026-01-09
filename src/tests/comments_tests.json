@@ -1,16 +1,13 @@
 [
     {
-        "senderId": "69385e04118742570f1d393e",
         "postId": "69385e04118742570f1d394e",
         "commentText": "comment 1"
     },
     {
-        "senderId": "69385e04118742570f1d393e",
         "postId": "69385e04118742570f1d394e",
         "commentText": "comment 2"
     },
     {
-        "senderId": "69385e04118742570f1d393e",
         "postId": "69385e04118742570f1d394e",
         "commentText": "comment 3"
     }

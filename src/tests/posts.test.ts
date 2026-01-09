@@ -8,9 +8,12 @@ import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
+import { IAuthResponse } from "../express/auth/interface";
+import { getMockLoginUser } from "./utils";
 
 let app: Application;
 let server: Server;
+let loginedUserData: IAuthResponse;
 
 beforeAll(async () => {
     logger.info("beforeAll");
@@ -21,6 +24,7 @@ beforeAll(async () => {
 
     await PostModel.deleteMany();
     await UserModel.deleteMany();
+    loginedUserData = await getMockLoginUser(app);
 });
 
 afterAll((done) => {
@@ -42,10 +46,13 @@ describe("posts tests", () => {
     });
 
     test("create new post", async () => {
-        const response = await request(app).post(baseUrl).send(postsTests[0]);
+        const response = await request(app)
+            .post(baseUrl)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`)
+            .send(postsTests[0]);
         expect(response.statusCode).toBe(201);
         expect(response.body.title).toBe(postsTests[0].title);
-        expect(response.body.senderId).toBe(postsTests[0].senderId);
+        expect(response.body.senderId).toBe(loginedUserData.user._id);
         expect(response.body.description).toBe(postsTests[0].description);
         newPostId = response.body._id;
     });
@@ -54,12 +61,14 @@ describe("posts tests", () => {
         const response = await request(app).get(`${baseUrl}/${newPostId}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe(postsTests[0].title);
-        expect(response.body.senderId).toBe(postsTests[0].senderId);
+        expect(response.body.senderId).toBe(loginedUserData.user._id);
         expect(response.body.description).toBe(postsTests[0].description);
     });
 
     test("get post by userId", async () => {
-        const response = await request(app).get(`${baseUrl}?senderId=${postsTests[0].senderId}`);
+        const response = await request(app)
+            .get(`${baseUrl}?senderId=${loginedUserData.user._id}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0].title).toBe(postsTests[0].title);
@@ -67,9 +76,13 @@ describe("posts tests", () => {
     });
 
     test("delete post", async () => {
-        const response = await request(app).delete(`${baseUrl}/${newPostId}`);
+        const response = await request(app)
+            .delete(`${baseUrl}/${newPostId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
         expect(response.statusCode).toBe(200);
-        const response2 = await request(app).get(`${baseUrl}/${newPostId}`);
+        const response2 = await request(app)
+            .get(`${baseUrl}/${newPostId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
         expect(response2.statusCode).toBe(404);
     });
 });

@@ -8,9 +8,12 @@ import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
+import { IAuthResponse } from "../express/auth/interface";
+import { getMockLoginUser } from "./utils";
 
 let app: Application;
 let server: Server;
+let loginedUserData: IAuthResponse;
 
 beforeAll(async () => {
     logger.info("beforeAll");
@@ -21,6 +24,7 @@ beforeAll(async () => {
 
     await CommentModel.deleteMany();
     await UserModel.deleteMany();
+    loginedUserData = await getMockLoginUser(app);
 });
 
 afterAll((done) => {
@@ -42,9 +46,12 @@ describe("comments tests", () => {
     });
 
     test("create new comment", async () => {
-        const response = await request(app).post(baseUrl).send(commentsTests[0]);
+        const response = await request(app)
+            .post(baseUrl)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`)
+            .send(commentsTests[0]);
         expect(response.statusCode).toBe(201);
-        expect(response.body.senderId).toBe(commentsTests[0].senderId);
+        expect(response.body.senderId).toBe(loginedUserData.user._id);
         expect(response.body.postId).toBe(commentsTests[0].postId);
         expect(response.body.commentText).toBe(commentsTests[0].commentText);
         newCommentId = response.body._id;
@@ -53,13 +60,13 @@ describe("comments tests", () => {
     test("get comment by id", async () => {
         const response = await request(app).get(`${baseUrl}/${newCommentId}`);
         expect(response.statusCode).toBe(200);
-        expect(response.body.senderId).toBe(commentsTests[0].senderId);
+        expect(response.body.senderId).toBe(loginedUserData.user._id);
         expect(response.body.postId).toBe(commentsTests[0].postId);
         expect(response.body.commentText).toBe(commentsTests[0].commentText);
     });
 
     test("get comment by userId", async () => {
-        const response = await request(app).get(`${baseUrl}?senderId=${commentsTests[0].senderId}`);
+        const response = await request(app).get(`${baseUrl}?senderId=${loginedUserData.user._id}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0].postId).toBe(commentsTests[0].postId);
@@ -67,7 +74,9 @@ describe("comments tests", () => {
     });
 
     test("delete comment", async () => {
-        const response = await request(app).delete(`${baseUrl}/${newCommentId}`);
+        const response = await request(app)
+            .delete(`${baseUrl}/${newCommentId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
         expect(response.statusCode).toBe(200);
         const response2 = await request(app).get(`${baseUrl}/${newCommentId}`);
         expect(response2.statusCode).toBe(404);
