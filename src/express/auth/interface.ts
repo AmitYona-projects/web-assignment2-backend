@@ -34,5 +34,5 @@ export interface ITokenInfo {
 }
 
 export interface AuthRequest extends Request {
-    user?: ITokenInfo;
+    user: ITokenInfo;
 }

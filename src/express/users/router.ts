@@ -1,8 +1,9 @@
 import { Router } from "express";
 import ValidateRequest from "../../utils/express/joi";
-import { createUserSchema, deleteUserByIdSchema, getUserByIdSchema, updateUserSchema } from "./validator";
+import { createUserSchema, getUserByIdSchema, updateUserSchema } from "./validator";
 import { UserController } from "./controller";
-import { wrapController } from "../../utils/express/middlewares";
+import { wrapAuthMiddleware, wrapController } from "../../utils/express/middlewares";
+import { authMiddleware } from "../auth/middleware";
 
 const userRouter = Router();
 
@@ -11,99 +12,6 @@ const userRouter = Router();
  * tags:
  *   name: Users
  *   description: API endpoints for users
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     User:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *           description: Unique ID of the user
- *         username:
- *           type: string
- *           description: Username of the user
- *         email:
- *           type: string
- *           description: Email of the user
- *         password:
- *           type: string
- *           description: Password of the user
- *         createdAt:
- *           type: string
- *           format: date-time
- *           description: Timestamp of when the user was created
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: Timestamp of when the user was last updated
- *
- *     CreateUser:
- *       type: object
- *       required:
- *         - username
- *         - email
- *         - password
- *       properties:
- *         username:
- *           type: string
- *           description: Username of the user
- *           example: "yonaamit"
- *         email:
- *           type: string
- *           description: Email of the user
- *           example: "yona.amit@gmail.com"
- *         password:
- *           type: string
- *           description: Password of the user
- *           example: "yonyon123!"
- *
- *     UpdateUser:
- *       type: object
- *       properties:
- *         username:
- *           type: string
- *           description: Username of the user
- *           example: "yonaamit2"
- *         password:
- *           type: string
- *           description: Password of the user
- *           example: "yonyon123!"
- *
- *     InternalServerError:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           description: Error message
- *           example: "Internal server error"
- *
- *     BadRequestError:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           description: Error message
- *           example: "Invalid request body"
- *
- *     InvalidIdError:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           description: Error message
- *           example: "Invalid user ID"
- *
- *     NotFoundError:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           description: Error message
- *           example: "User not found"
  */
 
 /**
@@ -122,11 +30,9 @@ const userRouter = Router();
  *               items:
  *                 $ref: '#/components/schemas/User'
  *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *         $ref: '#/components/responses/InternalServerError'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequestError'
  */
 userRouter.get("/", wrapController(UserController.getAllUsers));
 
@@ -150,23 +56,11 @@ userRouter.get("/", wrapController(UserController.getAllUsers));
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *         $ref: '#/components/responses/InternalServerError'
  *       '400':
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/InvalidIdError'
+ *         $ref: '#/components/responses/BadRequestError'
  *       '404':
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
+ *         $ref: '#/components/responses/NotFoundError'
  */
 userRouter.get("/:id", ValidateRequest(getUserByIdSchema), wrapController(UserController.getUserById));
 
@@ -181,7 +75,7 @@ userRouter.get("/:id", ValidateRequest(getUserByIdSchema), wrapController(UserCo
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateUser'
+ *             $ref: '#/components/schemas/CreateUserRequest'
  *     responses:
  *       '201':
  *         description: User created successfully
@@ -190,18 +84,9 @@ userRouter.get("/:id", ValidateRequest(getUserByIdSchema), wrapController(UserCo
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
- *               properties:
+ *         $ref: '#/components/responses/InternalServerError'
  *       '400':
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/BadRequestError'
+ *         $ref: '#/components/responses/BadRequestError'
  */
 userRouter.post("/", ValidateRequest(createUserSchema), wrapController(UserController.createUser));
 
@@ -222,7 +107,7 @@ userRouter.post("/", ValidateRequest(createUserSchema), wrapController(UserContr
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateUser'
+ *             $ref: '#/components/schemas/UpdateUserRequest'
  *     responses:
  *       '200':
  *         description: User updated successfully
@@ -231,25 +116,18 @@ userRouter.post("/", ValidateRequest(createUserSchema), wrapController(UserContr
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *         $ref: '#/components/responses/InternalServerError'
  *       '400':
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/BadRequestError'
+ *         $ref: '#/components/responses/BadRequestError'
  *       '404':
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
+ *         $ref: '#/components/responses/NotFoundError'
  */
-userRouter.put("/:id", ValidateRequest(updateUserSchema), wrapController(UserController.updateUser));
+userRouter.put(
+    "/:id",
+    authMiddleware,
+    ValidateRequest(updateUserSchema),
+    wrapAuthMiddleware(UserController.updateUser)
+);
 
 /**
  * @swagger
@@ -276,19 +154,12 @@ userRouter.put("/:id", ValidateRequest(updateUserSchema), wrapController(UserCon
  *                   description: Error message
  *                   example: "User <id> deleted successfully"
  *       '404':
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/components/schemas/InternalServerError'
+ *         $ref: '#/components/responses/NotFoundError'
  *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/BadRequestError'
+ *         $ref: '#/components/responses/InternalServerError'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequestError'
  */
-userRouter.delete("/:id", ValidateRequest(deleteUserByIdSchema), wrapController(UserController.deleteUserById));
+userRouter.delete("/:id", authMiddleware, wrapAuthMiddleware(UserController.deleteUserById));
 
 export default userRouter;

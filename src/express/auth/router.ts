@@ -1,7 +1,7 @@
 import { Router } from "express";
 import ValidateRequest from "../../utils/express/joi";
 import { loginSchema, logoutSchema, refreshTokenSchema, registerSchema } from "./validator";
-import { wrapController } from "../../utils/express/middlewares";
+import { wrapAuthMiddleware, wrapController } from "../../utils/express/middlewares";
 import { AuthController } from "./controller";
 import { authMiddleware } from "./middleware";
 
@@ -102,7 +102,7 @@ authRouter.post("/login", ValidateRequest(loginSchema), wrapController(AuthContr
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-authRouter.post("/logout", authMiddleware, ValidateRequest(logoutSchema), wrapController(AuthController.logout));
+authRouter.post("/logout", authMiddleware, ValidateRequest(logoutSchema), wrapAuthMiddleware(AuthController.logout));
 
 /**
  * @swagger
@@ -136,7 +136,7 @@ authRouter.post(
     "/refresh-token",
     authMiddleware,
     ValidateRequest(refreshTokenSchema),
-    wrapController(AuthController.refreshToken)
+    wrapAuthMiddleware(AuthController.refreshToken)
 );
 
 export default authRouter;

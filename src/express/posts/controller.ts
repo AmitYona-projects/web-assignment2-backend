@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PostManager } from "./manager";
+import { AuthRequest } from "../auth/interface";
 
 export class PostController {
     static getAllPosts = async (_req: Request, res: Response) => {
@@ -14,17 +15,15 @@ export class PostController {
         res.json(await PostManager.getPostsBySenderId(req.query?.senderId as string));
     };
 
-    static createPost = async (req: Request, res: Response) => {
-        const post = await PostManager.createPost(req.body);
-
-        res.status(201).json(post);
+    static createPost = async (req: AuthRequest, res: Response) => {
+        res.status(201).json(await PostManager.createPost(req.body, req.user._id));
     };
 
-    static updatePost = async (req: Request, res: Response) => {
-        res.json(await PostManager.updatePostById(req.params.id, req.body));
+    static updatePost = async (req: AuthRequest, res: Response) => {
+        res.json(await PostManager.updatePostById(req.params.id, req.body, req.user._id));
     };
 
-    static deletePostById = async (req: Request, res: Response) => {
-        res.json(await PostManager.deletePostById(req.params.id));
+    static deletePostById = async (req: AuthRequest, res: Response) => {
+        res.json(await PostManager.deletePostById(req.params.id, req.user._id));
     };
 }

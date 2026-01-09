@@ -16,12 +16,12 @@ export const createUserSchema = emptyRequestSchema.keys({
 });
 
 export const updateUserSchema = emptyRequestSchema.keys({
+    params: {
+        id: MongoIdSchema.required(),
+    },
     body: {
         username: Joi.string().optional(),
         password: Joi.string().optional(),
-    },
-    params: {
-        id: MongoIdSchema.required(),
     },
 });
 

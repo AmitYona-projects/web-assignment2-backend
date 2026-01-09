@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { CommentManager } from "./manager";
+import { AuthRequest } from "../auth/interface";
 
 export class CommentController {
     static getAllComments = async (_req: Request, res: Response) => {
@@ -14,17 +15,15 @@ export class CommentController {
         res.json(await CommentManager.getCommentsByPostId(req.params.postId as string));
     };
 
-    static createComment = async (req: Request, res: Response) => {
-        const comment = await CommentManager.createComment(req.body);
-
-        res.status(201).json(comment);
+    static createComment = async (req: AuthRequest, res: Response) => {
+        res.status(201).json(await CommentManager.createComment(req.body, req.user._id));
     };
 
-    static updateCommentById = async (req: Request, res: Response) => {
-        res.json(await CommentManager.updateCommentById(req.params.id, req.body));
+    static updateCommentById = async (req: AuthRequest, res: Response) => {
+        res.json(await CommentManager.updateCommentById(req.params.id, req.body, req.user._id));
     };
 
-    static deleteCommentById = async (req: Request, res: Response) => {
-        res.json(await CommentManager.deleteCommentById(req.params.id));
+    static deleteCommentById = async (req: AuthRequest, res: Response) => {
+        res.json(await CommentManager.deleteCommentById(req.params.id, req.user._id));
     };
 }

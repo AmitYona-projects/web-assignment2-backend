@@ -2,13 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import config from "../../config";
-import { ITokenInfo } from "./interface";
+import { AuthRequest, ITokenInfo } from "./interface";
 
-export type AuthRequest = Request & {
-    user?: ITokenInfo;
-};
-
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith(config.auth.bearerPrefix)) {
         return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Authentication token is required" });
@@ -18,7 +14,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
 
     try {
         const decoded = jwt.verify(token, config.auth.jwtSecret) as ITokenInfo;
-        req.user = decoded;
+        (req as AuthRequest).user = decoded;
         next();
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {

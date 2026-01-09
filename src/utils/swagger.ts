@@ -286,6 +286,23 @@ const swaggerOptions: swaggerJSDoc.OAS3Options = {
                         },
                     },
                 },
+                CreateUserRequest: {
+                    type: "object",
+                    required: ["email", "password", "username"],
+                    properties: {
+                        email: { type: "string", description: "Email of the user", example: "yona.amit@gmail.com" },
+                        password: { type: "string", description: "Password of the user", example: "yonyon123!" },
+                        username: { type: "string", description: "Username of the user", example: "yonaamit" },
+                    },
+                },
+                UpdateUserRequest: {
+                    type: "object",
+                    properties: {
+                        email: { type: "string", description: "Email of the user", example: "yona.amit@gmail.com" },
+                        password: { type: "string", description: "Password of the user", example: "yonyon123!" },
+                        username: { type: "string", description: "Username of the user", example: "yonaamit" },
+                    },
+                },
                 InternalServerError: {
                     type: "object",
                     properties: {
