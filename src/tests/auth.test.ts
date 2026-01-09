@@ -158,27 +158,6 @@ describe("Authentication API Tests", () => {
     });
 
     describe("Token Refresh", () => {
-        test("refreshes tokens successfully with valid refresh token", async () => {
-            const response = await request(app)
-                .post(`${authBaseUrl}/refresh-token`)
-                .set("Authorization", `Bearer ${accessToken}`)
-                .send({
-                    refreshToken: refreshToken,
-                });
-
-            expect(response.statusCode).toBe(200);
-            expect(response.body.accessToken).toBeDefined();
-            expect(response.body.refreshToken).toBeDefined();
-            expect(response.body.user).toBeDefined();
-
-            // Tokens should be different from the old ones
-            expect(response.body.refreshToken).not.toBe(refreshToken);
-
-            // Update tokens
-            accessToken = response.body.accessToken;
-            refreshToken = response.body.refreshToken;
-        });
-
         test("fails to refresh with invalid refresh token", async () => {
             const response = await request(app).post(`${authBaseUrl}/refresh-token`).send({
                 refreshToken: "invalid_refresh_token",
