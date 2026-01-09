@@ -15,7 +15,6 @@ export const getCommentsByPostIdSchema = emptyRequestSchema.keys({
 
 export const createCommentSchema = emptyRequestSchema.keys({
     body: {
-        senderId: MongoIdSchema.required(),
         postId: MongoIdSchema.required(),
         commentText: Joi.string().required(),
     },
@@ -23,7 +22,6 @@ export const createCommentSchema = emptyRequestSchema.keys({
 
 export const updateCommentSchema = emptyRequestSchema.keys({
     body: {
-        senderId: MongoIdSchema.optional(),
         postId: MongoIdSchema.optional(),
         commentText: Joi.string().optional(),
     },

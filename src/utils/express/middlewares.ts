@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import { ServerError } from "../errors";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "../logger";
+import { AuthRequest } from "../../express/auth/interface";
 
 export const wrapMiddleware = (func: (req: Request, res: Response) => Promise<void>) => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -16,6 +17,12 @@ export const wrapValidator = wrapMiddleware;
 export const wrapController = (func: (req: Request, res: Response, next?: NextFunction) => Promise<void>) => {
     return (req: Request, res: Response, next: NextFunction) => {
         func(req, res, next).catch(next);
+    };
+};
+
+export const wrapAuthMiddleware = (func: (req: AuthRequest, res: Response, next?: NextFunction) => Promise<void>) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        func(req as AuthRequest, res, next).catch(next);
     };
 };
 
