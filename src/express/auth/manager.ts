@@ -44,54 +44,37 @@ export class AuthManager {
         return { accessToken, refreshToken, user };
     };
 
-    static logout = async (refreshToken: string, userFromToken?: ITokenInfo): Promise<{ message: string }> => {
-        if (!userFromToken) {
-            throw new ServerError(StatusCodes.UNAUTHORIZED, "User not found");
+    static logout = async (refreshToken: string, userFromToken: ITokenInfo): Promise<{ message: string }> => {
+        const user = await UserModel.findById(userFromToken._id);
+
+        if (!user) {
+            throw new ServerError(StatusCodes.NOT_FOUND, "User not found");
         }
 
-        try {
-            const user = await UserModel.findById(userFromToken._id);
+        user.refreshTokens = user.refreshTokens.filter((token) => token !== refreshToken);
 
-            if (!user) {
-                throw new ServerError(StatusCodes.NOT_FOUND, "User not found");
-            }
+        await user.save();
 
-            user.refreshTokens = user.refreshTokens.filter((token) => token !== refreshToken);
-            await user.save();
-
-            return { message: "Logout successful" };
-        } catch (err) {
-            if (err instanceof ServerError) throw err;
-            else throw new ServerError(StatusCodes.INTERNAL_SERVER_ERROR, "Error on logging out user", err);
-        }
+        return { message: "Logout successful" };
     };
 
-    static refreshToken = async (refreshToken: string, userFromToken?: ITokenInfo): Promise<IAuthResponse> => {
-        if (!userFromToken) {
-            throw new ServerError(StatusCodes.BAD_REQUEST, "Refresh token is required");
-        }
+    static refreshToken = async (refreshToken: string, userFromToken: ITokenInfo): Promise<IAuthResponse> => {
+        const user = await UserModel.findById(userFromToken._id);
 
-        try {
-            const user = await UserModel.findById(userFromToken._id);
+        if (!user) throw new ServerError(StatusCodes.NOT_FOUND, "User not found");
 
-            if (!user) throw new ServerError(StatusCodes.NOT_FOUND, "User not found");
-
-            if (!user.refreshTokens.includes(refreshToken)) {
-                user.refreshTokens = [];
-                await user.save();
-
-                throw new ServerError(StatusCodes.UNAUTHORIZED, "Refresh token has been revoked");
-            }
-
-            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(user._id.toString());
-            user.refreshTokens = user.refreshTokens.filter((token) => token !== refreshToken);
-            user.refreshTokens.push(newRefreshToken);
+        if (!user.refreshTokens.includes(refreshToken)) {
+            user.refreshTokens = [];
             await user.save();
 
-            return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
-        } catch (error) {
-            if (error instanceof ServerError) throw error;
-            else throw new ServerError(StatusCodes.INTERNAL_SERVER_ERROR, "Error on refreshing token", error);
+            throw new ServerError(StatusCodes.UNAUTHORIZED, "Refresh token has been revoked");
         }
+
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(user._id.toString());
+        user.refreshTokens = user.refreshTokens.filter((token) => token !== refreshToken);
+        user.refreshTokens.push(newRefreshToken);
+        await user.save();
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
     };
 }

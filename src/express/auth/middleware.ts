@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import config from "../../config";
-import { AuthRequest, ITokenInfo } from "./interface";
+import { AuthRequest } from "./interface";
+import { verifyAccessToken } from "../../utils/auth";
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
@@ -13,14 +13,10 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, config.auth.jwtSecret) as ITokenInfo;
+        const decoded = verifyAccessToken(token);
         (req as AuthRequest).user = decoded;
         next();
     } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-            return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Token has expired" });
-        }
-
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid authentication token" });
+        return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid authentication token", error: error });
     }
 };

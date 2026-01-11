@@ -1,13 +1,11 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import config from "../config";
-import { Request } from "express";
 import { ITokenInfo } from "../express/auth/interface";
 import { ServerError } from "./errors";
 import { StatusCodes } from "http-status-codes";
 
-const { jwtSecret, jwtRefreshSecret, accessTokenExpiration, refreshTokenExpiration, bearerPrefix, saltRounds } =
-    config.auth;
+const { jwtSecret, jwtRefreshSecret, accessTokenExpiration, refreshTokenExpiration, saltRounds } = config.auth;
 
 export const generateAccessToken = (userId: string): string => {
     return jwt.sign({ _id: userId }, jwtSecret, {
@@ -30,16 +28,6 @@ export const generateTokens = (userId: string): { accessToken: string; refreshTo
 
 export const verifyAccessToken = (token: string): ITokenInfo => {
     return jwt.verify(token, jwtSecret) as ITokenInfo;
-};
-
-export const getTokenFromRequest = (req: Request): string | null => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith(bearerPrefix)) {
-        return null;
-    }
-
-    return authHeader.split(" ")[1];
 };
 
 export const encryptPassword = async (password: string): Promise<string> => {

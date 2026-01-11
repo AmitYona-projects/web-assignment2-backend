@@ -37,6 +37,7 @@ afterAll((done) => {
 const baseUrl = config.test.posts.route;
 
 let newPostId = "";
+let user2AccessToken = "";
 
 describe("posts tests", () => {
     test("get all posts", async () => {
@@ -65,14 +66,58 @@ describe("posts tests", () => {
         expect(response.body.description).toBe(postsTests[0].description);
     });
 
+    test("fails to get post by id that does not exist", async () => {
+        const response = await request(app).get(`${baseUrl}/6961063225cff8afd58a093d`);
+        expect(response.statusCode).toBe(404);
+        expect(response.body.message).toBe("No Document found with id 6961063225cff8afd58a093d");
+    });
+
     test("get post by userId", async () => {
         const response = await request(app)
-            .get(`${baseUrl}?senderId=${loginedUserData.user._id}`)
+            .get(`${baseUrl}/sender?senderId=${loginedUserData.user._id}`)
             .set("Authorization", `Bearer ${loginedUserData.accessToken}`);
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0].title).toBe(postsTests[0].title);
         expect(response.body[0].description).toBe(postsTests[0].description);
+    });
+
+    test("fails to get post by userId that does not exist", async () => {
+        const response = await request(app).get(`${baseUrl}/sender?senderId=6961063565cff8afd58a093d`);
+        expect(response.statusCode).toBe(404);
+        expect(response.body.message).toBe("No Document found with id 6961063565cff8afd58a093d");
+    });
+
+    test("update post", async () => {
+        const response = await request(app)
+            .put(`${baseUrl}/${newPostId}`)
+            .set("Authorization", `Bearer ${loginedUserData.accessToken}`)
+            .send({ title: "updated title", description: "updated description" });
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toBe("updated title");
+        expect(response.body.description).toBe("updated description");
+    });
+
+    test("fails to update post because it is not the user's own", async () => {
+        const user2Data = await request(app).post("/auth/register").send({
+            email: "user2@test.com",
+            password: "user2password",
+            username: "user2",
+        });
+        user2AccessToken = user2Data.body.accessToken;
+        const response = await request(app)
+            .put(`${baseUrl}/${newPostId}`)
+            .set("Authorization", `Bearer ${user2AccessToken}`);
+        expect(response.statusCode).toBe(403);
+        expect(response.body.message).toBe("You are not allowed to update this post");
+    });
+
+    test("fails to delete post because it is not the user's own", async () => {
+        const response = await request(app)
+            .delete(`${baseUrl}/${newPostId}`)
+            .set("Authorization", `Bearer ${user2AccessToken}`);
+        expect(response.statusCode).toBe(403);
+        expect(response.body.message).toBe("You are not allowed to delete this post");
     });
 
     test("delete post", async () => {

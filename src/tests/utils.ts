@@ -17,7 +17,7 @@ export const getMockLoginUser = async (app: Application): Promise<IAuthResponse>
         username: mockUser.username,
     });
 
-    if (registerResponse.status !== 201) {
+    if (registerResponse.statusCode !== 201) {
         throw new Error("Failed to register user");
     }
 

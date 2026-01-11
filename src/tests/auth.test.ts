@@ -6,7 +6,7 @@ import { initializeMongo } from "../utils/mongo";
 import { Server } from "../express/server";
 import config from "../config";
 import { logger } from "../utils/logger";
-import jwt from "jsonwebtoken";
+import { generateAccessToken } from "../utils/auth";
 
 let app: Application;
 let server: Server;
@@ -39,7 +39,6 @@ const authBaseUrl = "/auth";
 describe("Authentication API Tests", () => {
     let accessToken = "";
     let refreshToken = "";
-    let userId = "";
 
     describe("User Registration", () => {
         test("registers a new user successfully", async () => {
@@ -54,7 +53,6 @@ describe("Authentication API Tests", () => {
 
             accessToken = response.body.accessToken;
             refreshToken = response.body.refreshToken;
-            userId = response.body.user._id;
         });
 
         test("fails to register with existing email", async () => {
@@ -115,7 +113,6 @@ describe("Authentication API Tests", () => {
             expect(response.body.user).toBeDefined();
             expect(response.body.user.email).toBe(testUser.email);
 
-            // Update tokens from login
             accessToken = response.body.accessToken;
             refreshToken = response.body.refreshToken;
         });
@@ -158,6 +155,18 @@ describe("Authentication API Tests", () => {
     });
 
     describe("Token Refresh", () => {
+        test("refreshes tokens successfully", async () => {
+            const response = await request(app)
+                .post(`${authBaseUrl}/refresh-token`)
+                .set("Authorization", `Bearer ${accessToken}`)
+                .send({
+                    refreshToken: refreshToken,
+                });
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.accessToken).toBeDefined();
+            expect(response.body.refreshToken).toBeDefined();
+        });
         test("fails to refresh with invalid refresh token", async () => {
             const response = await request(app).post(`${authBaseUrl}/refresh-token`).send({
                 refreshToken: "invalid_refresh_token",
@@ -176,12 +185,9 @@ describe("Authentication API Tests", () => {
         });
 
         test("fails to refresh with revoked refresh token", async () => {
-            // First, logout to revoke the token
             await request(app).post(`${authBaseUrl}/logout`).send({
                 refreshToken: refreshToken,
             });
-
-            // Try to use the revoked token
             const response = await request(app).post(`${authBaseUrl}/refresh-token`).send({
                 refreshToken: refreshToken,
             });
@@ -190,30 +196,49 @@ describe("Authentication API Tests", () => {
         });
 
         test("refreshes tokens and old refresh token becomes invalid", async () => {
-            // Login to get fresh tokens
             const loginResponse = await request(app).post(`${authBaseUrl}/login`).send({
                 email: testUser.email,
                 password: testUser.password,
             });
 
             const oldRefreshToken = loginResponse.body.refreshToken;
-
-            // Refresh tokens
             const refreshResponse = await request(app)
                 .post(`${authBaseUrl}/refresh-token`)
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     refreshToken: oldRefreshToken,
                 });
-
             expect(refreshResponse.statusCode).toBe(200);
 
-            // Try to use old refresh token again
             const response = await request(app).post(`${authBaseUrl}/refresh-token`).send({
                 refreshToken: oldRefreshToken,
             });
+            expect(response.statusCode).toBe(401);
+        });
+
+        test("fails to refresh token by non existing user in token", async () => {
+            const nonExistingUserToken = generateAccessToken("6963689b3eefc42e308714bc");
+            const response = await request(app)
+                .post(`${authBaseUrl}/refresh-token`)
+                .set("Authorization", `Bearer ${nonExistingUserToken}`)
+                .send({ refreshToken: refreshToken });
+            expect(response.statusCode).toBe(404);
+            expect(response.body.message).toBe("User not found");
+        });
+
+        test("fails to refresh token by revoked refresh token", async () => {
+            await request(app).post(`${authBaseUrl}/logout`).set("Authorization", `Bearer ${accessToken}`).send({
+                refreshToken: refreshToken,
+            });
+            const response = await request(app)
+                .post(`${authBaseUrl}/refresh-token`)
+                .set("Authorization", `Bearer ${accessToken}`)
+                .send({
+                    refreshToken: refreshToken,
+                });
 
             expect(response.statusCode).toBe(401);
+            expect(response.body.message).toBe("Refresh token has been revoked");
         });
     });
 
@@ -221,7 +246,6 @@ describe("Authentication API Tests", () => {
         let logoutRefreshToken = "";
 
         beforeAll(async () => {
-            // Login to get fresh tokens for logout tests
             const loginResponse = await request(app).post(`${authBaseUrl}/login`).send({
                 email: testUser.email,
                 password: testUser.password,
@@ -255,7 +279,6 @@ describe("Authentication API Tests", () => {
             const response = await request(app).post(`${authBaseUrl}/refresh-token`).send({
                 refreshToken: logoutRefreshToken,
             });
-
             expect(response.statusCode).toBe(401);
         });
 
@@ -264,10 +287,21 @@ describe("Authentication API Tests", () => {
                 email: testUser.email,
                 password: testUser.password,
             });
-
             expect(response.statusCode).toBe(200);
             expect(response.body.accessToken).toBeDefined();
             expect(response.body.refreshToken).toBeDefined();
+        });
+
+        test("fails to logout by non existing user in token", async () => {
+            const nonExistingUserToken = generateAccessToken("6963689b3eefc42e308714bc");
+            const response = await request(app)
+                .post(`${authBaseUrl}/logout`)
+                .set("Authorization", `Bearer ${nonExistingUserToken}`)
+                .send({
+                    refreshToken: logoutRefreshToken,
+                });
+            expect(response.statusCode).toBe(404);
+            expect(response.body.message).toBe("User not found");
         });
     });
 });
